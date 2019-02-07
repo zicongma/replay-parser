@@ -12,7 +12,7 @@ import skadistats.clarity.source.MappedFileSource;
 @UsesEntities
 public class Main {
 
-    //private final Logger log = LoggerFactory.getLogger(Main.class.getPackage().getClass());
+    //private final Logger log = LoggerFactory.getLogger(replay.parser.Main.class.getPackage().getClass());
 
     private boolean isHero(Entity e) {
         return e.getDtClass().getDtName().startsWith("CDOTA_Unit_Hero");
