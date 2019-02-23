@@ -13,11 +13,16 @@ import skadistats.clarity.source.MappedFileSource;
 import sun.font.TrueTypeFont;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Timer;
 
 @UsesEntities
 public class Main {
     HashMap<String, Integer> count = new HashMap<String, Integer>();
+
+    HashSet<String> names = new HashSet<>();
+
+    boolean initialized = false;
 
     private final Logger log = LoggerFactory.getLogger(Main.class.getPackage().getClass());
 
@@ -25,9 +30,19 @@ public class Main {
         return e.getDtClass().getDtName().startsWith("CDOTA_Unit_Hero");
     }
 
+    private boolean isPlayer(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTAPlayer"); }
+
+    private boolean isResource(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_PlayerResource"); }
+
+    private boolean isDataDire(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_DataDire"); }
+
+    private boolean isDataRadiant(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_DataRadiant"); }
+
+    private boolean isPlayerCSGO(Entity e) { return e.getDtClass().getDtName().startsWith("DT_CSPlayer"); }
+
     private boolean isTime(Entity e) { return e.getDtClass().getDtName().equals("CDOTAGamerulesProxy"); }
 
-    public Float getRealGameTimeSeconds(Entities entities) {
+    private Float getRealGameTimeSeconds(Entities entities) {
         Entity grules = entities.getByDtName("CDOTAGamerulesProxy");
         Float gameTime = null;
         Float startTime = null;
@@ -49,14 +64,20 @@ public class Main {
         return realTime;
     }
 
+    private void initialize(Entities entities) {
+
+    }
+
     @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
         Float TIME_EPS = (float) 0.0001;
-        if (!isHero(e)) {
+
+        if (!(isHero(e))) {
             return;
         }
+
         Entities entities = ctx.getProcessor(Entities.class);
-        long real_time = (long) (getRealGameTimeSeconds(entities) * 1000000000);
+        float real_time = getRealGameTimeSeconds(entities);
 
         if (real_time < TIME_EPS) {
             return;
@@ -70,7 +91,15 @@ public class Main {
 //            } else {
 //                count.put(pathName, 1);
 //            }
-            System.out.format("Entity: %s, Property: %s, Value: %s, Time: %s\n", e.getDtClass().getDtName(), pathName, e.getPropertyForFieldPath(path), real_time);
+            Entity player = ctx.getProcessor(Entities.class).getByHandle((int) e.getProperty("m_hOwnerEntity"));
+            if (player == null) {
+                System.out.println(e.getProperty("m_hOwnerEntity") + " " + e.getDtClass().getDtName() + " " + e.getProperty("m_hReplicatingOtherHeroModel"));
+            }
+//            int id = e.getProperty("m_iPlayerID");
+//            if (id > 9 || id < 0) {
+//                System.out.println("??????");
+//            }
+//            System.out.format("Entity: %s, Property: %s, Value: %s, ID: %s, Time: %s\n", e.getDtClass().getDtName(), pathName, e.getPropertyForFieldPath(path), e.getProperty("m_iPlayerID"), real_time);
         }
     }
 
