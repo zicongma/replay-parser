@@ -10,11 +10,8 @@ import skadistats.clarity.processor.entities.UsesEntities;
 import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
 import skadistats.clarity.source.MappedFileSource;
-import sun.font.TrueTypeFont;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Timer;
+import java.util.*;
 
 @UsesEntities
 public class Main {
@@ -42,6 +39,10 @@ public class Main {
 
     private boolean isTime(Entity e) { return e.getDtClass().getDtName().equals("CDOTAGamerulesProxy"); }
 
+    private int[] RadiantIndices = new int[5];
+
+    private int[] DireIndices = new int[5];
+
     private Float getRealGameTimeSeconds(Entities entities) {
         Entity grules = entities.getByDtName("CDOTAGamerulesProxy");
         Float gameTime = null;
@@ -64,15 +65,37 @@ public class Main {
         return realTime;
     }
 
-    private void initialize(Entities entities) {
+    private void initializeMetaData(Entities entities, Context ctx) {
+        Iterator<Entity> teams = entities.getAllByDtName("CDOTATeam");
+        String initial = "m_aPlayers.000";
 
+        while (teams.hasNext()) {
+            Entity team = teams.next();
+            if ((int) team.getProperty("m_iTeamNum") == 2) {
+                for (int i = 0; i < 5; i++) {
+                    String property = initial + i;
+                    int handle = team.getProperty(property);
+                    Entity player = ctx.getProcessor(Entities.class).getByHandle(handle);
+                    RadiantIndices[i] = player.getProperty("m_iPlayerID");
+                }
+
+            } else if ((int) team.getProperty("m_iTeamNum") == 3) {
+                for (int i = 0; i < 5; i++) {
+                    String property = initial + i;
+                    int handle = team.getProperty(property);
+                    Entity player = ctx.getProcessor(Entities.class).getByHandle(handle);
+                    DireIndices[i] = player.getProperty("m_iPlayerID");
+                }
+            }
+        }
     }
 
     @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
-        Float TIME_EPS = (float) 0.0001;
 
-        if (!(isHero(e))) {
+
+        Float TIME_EPS = (float) 0.0001;
+        if (!(isHero(e) || isDataDire(e) || isDataRadiant(e))) {
             return;
         }
 
@@ -83,18 +106,40 @@ public class Main {
             return;
         }
 
+        if (!initialized) {
+            initializeMetaData(entities, ctx);
+            initialized = true;
+            System.out.println(Arrays.toString(RadiantIndices));
+            System.out.println(Arrays.toString(DireIndices));
+        }
+
         for (int i = 0; i < updateCount; i++) {
             FieldPath path = updatedPaths[i];
             String pathName = e.getDtClass().getNameForFieldPath(path);
+            if (pathName.equals("m_lifeState")) {
+                System.out.format("Player ID: %s, FieldName: %s, UpdatedValue: %s, Time: %s\n", e.getProperty("m_iPlayerID"), pathName, e.getProperty("m_lifeState"), real_time);
+            }
+            if (pathName.endsWith("m_iTotalEarnedGold") || pathName.endsWith("m_iTotalEarnedXP")) {
+                int index = Integer.parseInt(String.valueOf(pathName.charAt(17)));
+                int playerID = -1;
+                if (isDataRadiant(e)) {
+                    playerID = RadiantIndices[index];
+                } else if (isDataDire(e)) {
+                    playerID = DireIndices[index];
+                }
+                System.out.format("Player ID: %s, FieldName: %s, UpdatedValue: %s, Time: %s\n", playerID, pathName, e.getProperty(pathName), real_time);
+            }
+
+
 //            if (count.keySet().contains(pathName)) {
 //                count.put(pathName, count.get(pathName) + 1);
 //            } else {
 //                count.put(pathName, 1);
 //            }
-            Entity player = ctx.getProcessor(Entities.class).getByHandle((int) e.getProperty("m_hOwnerEntity"));
-            if (player == null) {
-                System.out.println(e.getProperty("m_hOwnerEntity") + " " + e.getDtClass().getDtName() + " " + e.getProperty("m_hReplicatingOtherHeroModel"));
-            }
+//            Entity player = ctx.getProcessor(Entities.class).getByHandle((int) e.getProperty("m_hOwnerEntity"));
+//            if (player == null) {
+//                System.out.println(e.getProperty("m_hOwnerEntity") + " " + e.getDtClass().getDtName() + " " + e.getProperty("m_hReplicatingOtherHeroModel"));
+//            }
 //            int id = e.getProperty("m_iPlayerID");
 //            if (id > 9 || id < 0) {
 //                System.out.println("??????");
