@@ -1,15 +1,17 @@
 package replay.parser;
 
-public class Update {
-    public String entity;
+public class Update extends Message {
     public String property;
     public String value;
-    public int tick;
 
     public Update(String entity, String property, String value, int tick) {
-        this.entity = entity;
+        super("update", entity, tick);
         this.property = property;
         this.value = value;
-        this.tick = tick;
+    }
+
+    @Override
+    public String toMessageFormat() {
+        return "update" + "/" + this.entity + "/" + this.property + "/" + this.value;
     }
 }

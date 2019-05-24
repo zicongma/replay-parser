@@ -13,7 +13,6 @@ import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
 import skadistats.clarity.source.MappedFileSource;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 @UsesEntities
@@ -21,7 +20,7 @@ public class Main {
     private final Logger log = LoggerFactory.getLogger(Main.class.getPackage().getClass());
 
     private boolean isPlayer(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTAPlayer"); }
-    private List<Update> updates = new ArrayList<>();
+    private List<Message> messages = new ArrayList<>();
 
     private boolean isHero(Entity e) {
         return e.getDtClass().getDtName().startsWith("CDOTA_Unit_Hero");
@@ -54,8 +53,16 @@ public class Main {
         if (!(isHero(e))) {
             return;
         }
-//        System.out.println(e.getDtClass().getDtName() + " " + e.getProperty("m_iPlayerID") + " " + ctx.getTick());
-//        System.out.println(e);
+        String[] properties = new String[] {"m_iCurrentLevel", "m_iCurrentXP", "m_iHealth", "m_lifeState"
+        ,"CBodyComponent.m_cellX", "CBodyComponent.m_cellY", "CBodyComponent.m_vecX", "CBodyComponent.m_vecY",
+        "m_iTeamNum", "m_iDamageMin", "m_iDamageMax", "m_flStrength", "m_flAgility", "m_flIntellect", "m_iPlayerID"};
+        int numProperties = properties.length;
+        String[] values = new String[numProperties];
+        for (int i = 0; i < numProperties; i++) {
+            values[i] = e.getProperty(properties[i]).toString();
+        }
+        Initialize initialize = new Initialize(e.getDtClass().getDtName(), properties, values, ctx.getTick());
+        messages.add(initialize);
     }
 
 
@@ -75,23 +82,24 @@ public class Main {
             }
             //System.out.format("Entity: %s, Property: %s, Value: %s, Tick: %s\n", e.getDtClass().getDtName(), e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]), ctx.getTick());
             Update update = new Update(e.getDtClass().getDtName(), e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
-            updates.add(update);
+            messages.add(update);
+            //System.out.println(e.getDtClass().getDtName() + " " +  e.getProperty("m_iPlayerID") + " " + ctx.getTick());
         }
     }
 
     public void simulate() {
 
-        UpdateProducer producer = new UpdateProducer();
+        MessageProducer producer = new MessageProducer();
         long start = System.nanoTime();
         int updateidx = 0;
-        int finalidx = updates.size();
+        int finalidx = messages.size();
         // To Do: add looping feature
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000 + updates.get(0).tick;
-            while (ticksPassed >= updates.get(updateidx).tick && updateidx < finalidx) {
-                Update update  = updates.get(updateidx);
-                producer.send(update.entity + "/" + update.property + "/" + update.value + "/" + Instant.now());
+            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
+            while (ticksPassed >= messages.get(updateidx).tick && updateidx < finalidx) {
+                Message message  = messages.get(updateidx);
+                producer.send(message.toMessageFormat() + "/" + Instant.now());
                 updateidx ++;
             }
         }
