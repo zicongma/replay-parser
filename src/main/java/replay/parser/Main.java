@@ -87,6 +87,26 @@ public class Main {
         }
     }
 
+//    @OnEntityUpdated
+//    public void validate(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
+//        if (!(isHero(e))) {
+//            return;
+//        }
+//
+//        Entities entities = ctx.getProcessor(Entities.class);
+//        Float realTime = (getRealGameTimeSeconds(entities));
+//
+//        for (int i = 0; i < updateCount; i++) {
+//            if (e.getDtClass().getNameForFieldPath(updatedPaths[i]).equals("m_iPlayerID")) {
+//                System.out.println(e.getDtClass().getDtName() + " " + e.getProperty("m_iPlayerID") + " " + e.getProperty("m_iHealth") + " " + e.getProperty("m_iCurrentXP"));
+//            } else if (e.getDtClass().getNameForFieldPath(updatedPaths[i]).equals("m_iHealth")) {
+//                System.out.println(e.getDtClass().getDtName() + " " + e.getProperty("m_iPlayerID") + " " + e.getProperty("m_iHealth") + " " + e.getProperty("m_iCurrentXP"));
+//            } else if (e.getDtClass().getNameForFieldPath(updatedPaths[i]).equals("m_iCurrentXP")) {
+//                System.out.println(e.getDtClass().getDtName() + " " + e.getProperty("m_iPlayerID") + " " + e.getProperty("m_iHealth") + " " + e.getProperty("m_iCurrentXP"));
+//            }
+//        }
+//    }
+
     public void simulate() {
 
         MessageProducer producer = new MessageProducer();
