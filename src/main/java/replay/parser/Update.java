@@ -4,8 +4,8 @@ public class Update extends Message {
     public String property;
     public String value;
 
-    public Update(String entity, String property, String value, int tick) {
-        super("update", entity, tick);
+    public Update(String entity, String topic, String property, String value, int tick) {
+        super("update", entity, topic, tick);
         this.property = property;
         this.value = value;
     }

@@ -18,9 +18,9 @@ public class MessageProducer {
         producer = new KafkaProducer<>(properties);
     }
 
-    public void send(String message) {
+    public void send(String topic, String message) {
         try {
-            producer.send(new ProducerRecord<>("update", 0, message)).get();
+            producer.send(new ProducerRecord<>(topic, 0, message)).get();
             System.out.println("Sent: " + message);
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();

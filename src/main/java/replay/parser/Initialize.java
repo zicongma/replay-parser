@@ -4,8 +4,8 @@ public class Initialize extends Message {
     public String[] properties;
     public String[] values;
 
-    public Initialize(String entity, String[] properties, String[] values, int tick) {
-        super("initialize", entity, tick);
+    public Initialize(String entity, String topic, String[] properties, String[] values, int tick) {
+        super("initialize", entity, topic, tick);
         this.properties = properties;
         this.values = values;
     }

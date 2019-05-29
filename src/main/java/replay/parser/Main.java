@@ -25,6 +25,7 @@ public class Main {
     private boolean isHero(Entity e) {
         return e.getDtClass().getDtName().startsWith("CDOTA_Unit_Hero");
     }
+    private boolean isResource(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_PlayerResource"); }
 
     private Float getRealGameTimeSeconds(Entities entities) {
         Entity grules = entities.getByDtName("CDOTAGamerulesProxy");
@@ -50,39 +51,63 @@ public class Main {
 
     @OnEntityCreated
     public void onCreated(Context ctx, Entity e) {
-        if (!(isHero(e))) {
+        String[] properties;
+        String[] values;
+        String topic;
+
+        if (!(isHero(e)||isResource(e))) {
             return;
         }
-        String[] properties = new String[] {"m_iCurrentLevel", "m_iCurrentXP", "m_iHealth", "m_lifeState"
-        ,"CBodyComponent.m_cellX", "CBodyComponent.m_cellY", "CBodyComponent.m_vecX", "CBodyComponent.m_vecY",
-        "m_iTeamNum", "m_iDamageMin", "m_iDamageMax", "m_flStrength", "m_flAgility", "m_flIntellect", "m_iPlayerID"};
-        int numProperties = properties.length;
-        String[] values = new String[numProperties];
-        for (int i = 0; i < numProperties; i++) {
-            values[i] = e.getProperty(properties[i]).toString();
+        if ((isHero(e))) {
+            properties = new String[] {"m_iCurrentLevel", "m_iCurrentXP", "m_iHealth", "m_lifeState"
+                    ,"CBodyComponent.m_cellX", "CBodyComponent.m_cellY", "CBodyComponent.m_vecX", "CBodyComponent.m_vecY",
+                    "m_iTeamNum", "m_iDamageMin", "m_iDamageMax", "m_flStrength", "m_flAgility", "m_flIntellect", "m_iPlayerID"};
+            topic = "hero";
+            int numProperties = properties.length;
+            values = new String[numProperties];
+            for (int i = 0; i < numProperties; i++) {
+                values[i] = e.getProperty(properties[i]).toString();
+            }
+            Initialize initialize = new Initialize(e.getDtClass().getDtName(), topic, properties, values, ctx.getTick());
+            messages.add(initialize);
+        } else if (isResource(e)) {
+            topic = "resource";
+            for (int i = 0; i < 10; i++) {
+                properties = new String[] {"m_vecPlayerTeamData.000" + i + ".m_iKills",
+                        "m_vecPlayerTeamData.000" + i + ".m_iAssists" , "m_vecPlayerTeamData.000" + i + ".m_iDeaths"};
+                int numProperties = properties.length;
+                values = new String[numProperties];
+                for (int j = 0; j < numProperties; j++) {
+                    values[j] = e.getProperty(properties[j]).toString();
+                }
+                Initialize initialize = new Initialize(e.getDtClass().getDtName() + i, topic, properties, values, ctx.getTick());
+                messages.add(initialize);
+            }
         }
-        Initialize initialize = new Initialize(e.getDtClass().getDtName(), properties, values, ctx.getTick());
-        messages.add(initialize);
     }
 
 
     // Add _id in the player name
     @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
-        if (!(isHero(e))) {
+        if (!(isHero(e) || isResource(e))) {
             return;
         }
-
         Entities entities = ctx.getProcessor(Entities.class);
         Float realTime = (getRealGameTimeSeconds(entities));
 
         for (int i = 0; i < updateCount; i++) {
-            if (e.getDtClass().getNameForFieldPath(updatedPaths[i]).equals("m_iHealth")) {
-                //System.out.println(ctx.getTick());
+            if (isHero(e)) {
+                //System.out.format("Entity: %s, Property: %s, Value: %s, Tick: %s\n", e.getDtClass().getDtName(), e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]), ctx.getTick());
+                Update update = new Update(e.getDtClass().getDtName(),"hero", e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
+                messages.add(update);
+            } else if (isResource(e)) {
+                String[] split = e.getDtClass().getNameForFieldPath(updatedPaths[i]).split("\\.");
+                if (split.length >= 3) {
+                    Update update = new Update(e.getDtClass().getDtName() + split[1].charAt(3), "resource", e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
+                    messages.add(update);
+                }
             }
-            //System.out.format("Entity: %s, Property: %s, Value: %s, Tick: %s\n", e.getDtClass().getDtName(), e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]), ctx.getTick());
-            Update update = new Update(e.getDtClass().getDtName(), e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
-            messages.add(update);
             //System.out.println(e.getDtClass().getDtName() + " " +  e.getProperty("m_iPlayerID") + " " + ctx.getTick());
         }
     }
@@ -113,13 +138,14 @@ public class Main {
         long start = System.nanoTime();
         int updateidx = 0;
         int finalidx = messages.size();
+        System.out.println(finalidx);
         // To Do: add looping feature
         while (true) {
             long timePassed = System.nanoTime() - start;
             long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick && updateidx < finalidx) {
                 Message message  = messages.get(updateidx);
-                producer.send(message.toMessageFormat() + "/" + Instant.now());
+                producer.send(message.topic, message.toMessageFormat() + "/" + Instant.now());
                 updateidx ++;
             }
         }
