@@ -1,11 +1,13 @@
 package replay.parser;
 
-public class Initialize extends Message {
+public class EntityInitialize extends Message {
+    public String entity;
     public String[] properties;
     public String[] values;
 
-    public Initialize(String entity, String topic, String[] properties, String[] values, int tick) {
-        super("initialize", entity, topic, tick);
+    public EntityInitialize(String entity, String topic, String[] properties, String[] values, int tick) {
+        super("initialize", topic, tick);
+        this.entity = entity;
         this.properties = properties;
         this.values = values;
     }
