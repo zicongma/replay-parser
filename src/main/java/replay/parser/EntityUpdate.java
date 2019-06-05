@@ -5,8 +5,8 @@ public class EntityUpdate extends Message {
     public String property;
     public String value;
 
-    public EntityUpdate(String entity, String topic, String property, String value, int tick) {
-        super("update", topic, tick);
+    public EntityUpdate(int game, String entity, String topic, String property, String value, int tick) {
+        super(game,"update", topic, tick);
         this.entity = entity;
         this.property = property;
         this.value = value;
@@ -14,6 +14,6 @@ public class EntityUpdate extends Message {
 
     @Override
     public String toMessageFormat() {
-        return "update" + "/" + this.entity + "/" + this.property + "/" + this.value;
+        return "update" + "/" + this.game + "/" + this.entity + "/" + this.property + "/" + this.value;
     }
 }

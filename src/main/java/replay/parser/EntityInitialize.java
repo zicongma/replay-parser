@@ -5,8 +5,8 @@ public class EntityInitialize extends Message {
     public String[] properties;
     public String[] values;
 
-    public EntityInitialize(String entity, String topic, String[] properties, String[] values, int tick) {
-        super("initialize", topic, tick);
+    public EntityInitialize(int game, String entity, String topic, String[] properties, String[] values, int tick) {
+        super(game, "initialize", topic, tick);
         this.entity = entity;
         this.properties = properties;
         this.values = values;
@@ -16,6 +16,8 @@ public class EntityInitialize extends Message {
     public String toMessageFormat() {
         StringBuilder sb = new StringBuilder();
         sb.append("initialize");
+        sb.append("/");
+        sb.append(game);
         sb.append("/");
         sb.append(entity);
         for (int i = 0; i < properties.length; i++) {
