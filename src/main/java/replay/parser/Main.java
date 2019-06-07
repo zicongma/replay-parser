@@ -5,6 +5,7 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import scala.Int;
 import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
@@ -110,7 +111,7 @@ public class Main {
 
     }
 
-    // @OnCombatLogEntry
+//    @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry cle) {
         for (int game = 0; game < totalGame; game++) {
             CombatLog combatLog = null;
@@ -144,7 +145,7 @@ public class Main {
         int finalidx = messages.size();
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000;
+            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick && updateidx < finalidx) {
                 Message message  = messages.get(updateidx);
                 producer.send(message.topic, message.toMessageFormat() + "/" + Instant.now());
@@ -153,10 +154,24 @@ public class Main {
         }
     }
 
+    public void statsCollection() {
+        int currIdx = 0;
+        int finalIdx = messages.size();
+        int[] throughput = new int[30 * 60];
+        while (currIdx < finalIdx) {
+            int tick = messages.get(currIdx).tick;
+            int slot = (int) tick / 30;
+            throughput[slot] ++;
+            currIdx ++;
+        }
+        System.out.println(Arrays.toString(throughput));
+    }
+
 
     public void run(String[] args) throws Exception {
         this.totalGame = Integer.parseInt(args[1]);
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
+//        statsCollection();
         simulate();
     }
 
