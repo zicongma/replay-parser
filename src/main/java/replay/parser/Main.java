@@ -40,14 +40,15 @@ public class Main {
 
     private boolean isPlayer(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTAPlayer"); }
     private List<Message> messages = new ArrayList<>();
+    private List<Long> sentTicks = new ArrayList<>();
 
     private boolean isHero(Entity e) {
         return e.getDtClass().getDtName().startsWith("CDOTA_Unit_Hero");
     }
     private boolean isResource(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_PlayerResource"); }
 
-        @OnEntityCreated
-        public void onCreated(Context ctx, Entity e) {
+    // @OnEntityCreated
+    public void onCreated(Context ctx, Entity e) {
         String[] properties;
         String[] values;
         String topic;
@@ -87,7 +88,7 @@ public class Main {
     }
 
 
-    @OnEntityUpdated
+    // @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
         if (!(isHero(e) || isResource(e))) {
             return;
@@ -111,7 +112,7 @@ public class Main {
 
     }
 
-//    @OnCombatLogEntry
+    @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry cle) {
         for (int game = 0; game < totalGame; game++) {
             CombatLog combatLog = null;
@@ -145,11 +146,17 @@ public class Main {
         int finalidx = messages.size();
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
-            while (ticksPassed >= messages.get(updateidx).tick && updateidx < finalidx) {
+            long ticksPassed = timePassed * 30 / 1000000000;
+            while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
                 producer.send(message.topic, message.toMessageFormat() + "/" + Instant.now());
+                long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
+                sentTicks.add(sentTick);
                 updateidx ++;
+                System.out.println(sentTick - message.tick);
+                if (updateidx == finalidx) {
+                    return;
+                }
             }
         }
     }
@@ -167,12 +174,26 @@ public class Main {
         System.out.println(Arrays.toString(throughput));
     }
 
+    public void sentStatsCollection() {
+        int currIdx = 0;
+        int finalIdx = sentTicks.size();
+        int[] throughput = new int[30 * 60];
+        while (currIdx < finalIdx) {
+            long tick = sentTicks.get(currIdx);
+            int slot = (int) tick / 30;
+            throughput[slot] ++;
+            currIdx ++;
+        }
+        System.out.println(Arrays.toString(throughput));
+    }
+
 
     public void run(String[] args) throws Exception {
         this.totalGame = Integer.parseInt(args[1]);
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
 //        statsCollection();
         simulate();
+        sentStatsCollection();
     }
 
     public static void main(String[] args) throws Exception {
