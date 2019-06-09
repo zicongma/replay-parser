@@ -1,7 +1,9 @@
 package replay.parser;
 
+import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
 
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -19,11 +21,10 @@ public class MessageProducer {
     }
 
     public void send(String topic, String message) {
-        try {
-            producer.send(new ProducerRecord<>(topic, 0, message)).get();
-            //System.out.println("Sent: " + message);
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        producer.send(new ProducerRecord<>(topic, 0, message), new Callback(){
+            @Override
+            public void onCompletion(RecordMetadata recordMetadata, Exception e) {
+            }
+        });
     }
 }
