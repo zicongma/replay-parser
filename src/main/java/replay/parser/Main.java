@@ -5,7 +5,6 @@ import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.Int;
 import skadistats.clarity.model.CombatLogEntry;
 import skadistats.clarity.model.Entity;
 import skadistats.clarity.model.FieldPath;
@@ -47,7 +46,7 @@ public class Main {
     }
     private boolean isResource(Entity e) { return e.getDtClass().getDtName().startsWith("CDOTA_PlayerResource"); }
 
-    // @OnEntityCreated
+    @OnEntityCreated
     public void onCreated(Context ctx, Entity e) {
         String[] properties;
         String[] values;
@@ -88,7 +87,7 @@ public class Main {
     }
 
 
-    // @OnEntityUpdated
+    @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
         if (!(isHero(e) || isResource(e))) {
             return;
@@ -112,7 +111,7 @@ public class Main {
 
     }
 
-    @OnCombatLogEntry
+//    @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry cle) {
         for (int game = 0; game < totalGame; game++) {
             CombatLog combatLog = null;
@@ -149,14 +148,12 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-                producer.send(message.topic, message.toMessageFormat() + "/" + Instant.now());
+                System.out.println(message.toMessageFormat());
+                //producer.send(message.topic, message.toMessageFormat());
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
-                sentTicks.add(sentTick);
+                //sentTicks.add(sentTick);
                 updateidx ++;
                 System.out.println(sentTick - message.tick);
-                if (updateidx == finalidx) {
-                    return;
-                }
             }
         }
     }
@@ -192,8 +189,9 @@ public class Main {
         this.totalGame = Integer.parseInt(args[1]);
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
 //        statsCollection();
+        System.out.println("starting");
         simulate();
-        sentStatsCollection();
+//        sentStatsCollection();
     }
 
     public static void main(String[] args) throws Exception {
