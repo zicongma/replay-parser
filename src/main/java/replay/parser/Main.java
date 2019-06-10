@@ -145,13 +145,14 @@ public class Main {
         int finalidx = messages.size();
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000;
+            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
                 //System.out.println(message.toMessageFormat());
                 producer.send(message.topic, message.toMessageFormat());
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 //sentTicks.add(sentTick);
+                System.out.println(sentTick - message.tick);
                 updateidx ++;
             }
         }
@@ -189,6 +190,8 @@ public class Main {
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
 //        statsCollection();
         System.out.println("starting");
+//        System.out.println(messages.get(0).tick);
+//        System.out.println(messages.get(messages.size() - 1).tick);
         simulate();
 //        sentStatsCollection();
     }
