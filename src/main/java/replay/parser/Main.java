@@ -148,12 +148,11 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-                System.out.println(message.toMessageFormat());
-                //producer.send(message.topic, message.toMessageFormat());
+                //System.out.println(message.toMessageFormat());
+                producer.send(message.topic, message.toMessageFormat());
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 //sentTicks.add(sentTick);
                 updateidx ++;
-                System.out.println(sentTick - message.tick);
             }
         }
     }
