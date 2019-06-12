@@ -181,20 +181,20 @@ public class Main {
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
         long finish = System.nanoTime();
         System.out.println("took : " + (finish - start) );
-        Runtime rut = Runtime.getRuntime();
-        try {
-            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./evaluate.sh &"});
-            // prints out any message that are usually displayed in the console
-            Scanner scanner = new Scanner(process.getInputStream());
-            while (scanner.hasNext()) {
-                System.out.println(scanner.nextLine());
-            }
-            process.waitFor();
-        }catch(IOException e1) {
-            e1.printStackTrace();
-        }
-
-        TimeUnit.SECONDS.sleep(5);
+//        Runtime rut = Runtime.getRuntime();
+//        try {
+//            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./evaluate.sh &"});
+//            // prints out any message that are usually displayed in the console
+//            Scanner scanner = new Scanner(process.getInputStream());
+//            while (scanner.hasNext()) {
+//                System.out.println(scanner.nextLine());
+//            }
+//            process.waitFor();
+//        }catch(IOException e1) {
+//            e1.printStackTrace();
+//        }
+//
+//        TimeUnit.SECONDS.sleep(5);
 
 //        System.out.println(messages.get(0).tick);
 //        System.out.println(messages.get(messages.size() - 1).tick);
