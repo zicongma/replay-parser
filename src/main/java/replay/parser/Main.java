@@ -137,8 +137,8 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-                String str = message.message;
-                //producer.send(message.topic, message.toMessageFormat());
+//                String str = message.message;
+                producer.send(message.topic, message.message);
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 updateidx ++;
                 if (updateidx == finalidx) {
