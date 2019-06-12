@@ -188,15 +188,18 @@ public class Main {
 
     public void run(String[] args) throws Exception {
         this.totalGame = Integer.parseInt(args[1]);
+        long start = System.nanoTime();
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
+        long finish = System.nanoTime();
+        System.out.println("took : " + (finish - start) );
 //        statsCollection();
         System.out.println("starting");
 //        System.out.println(messages.get(0).tick);
 //        System.out.println(messages.get(messages.size() - 1).tick);
-        long start = System.nanoTime();
-        simulate();
-        long finish = System.nanoTime();
-        System.out.println(finish - start);
+//        long start = System.nanoTime();
+//        simulate();
+//        long finish = System.nanoTime();
+//        System.out.println(finish - start);
 //        sentStatsCollection();
     }
 
