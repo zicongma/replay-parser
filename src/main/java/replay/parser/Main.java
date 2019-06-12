@@ -183,7 +183,7 @@ public class Main {
         System.out.println("took : " + (finish - start) );
         Runtime rut = Runtime.getRuntime();
         try {
-            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./evaluate.sh &"});
+            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./run_engine.sh &"});
             // prints out any message that are usually displayed in the console
             Scanner scanner = new Scanner(process.getInputStream());
             while (scanner.hasNext()) {
