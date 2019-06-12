@@ -17,6 +17,7 @@ import skadistats.clarity.processor.runner.Context;
 import skadistats.clarity.processor.runner.SimpleRunner;
 import skadistats.clarity.source.MappedFileSource;
 
+import java.io.IOException;
 import java.util.*;
 
 @UsesEntities
@@ -179,8 +180,20 @@ public class Main {
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
         long finish = System.nanoTime();
         System.out.println("took : " + (finish - start) );
-        Runtime rt = Runtime.getRuntime();
-        Process pr = rt.exec("mvn exec:java -f ../sparkscala/pom.xml &");
+        Runtime rut = Runtime.getRuntime();
+        try {
+            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./evaluate.sh &"});
+            // prints out any message that are usually displayed in the console
+            Scanner scanner = new Scanner(process.getInputStream());
+            while (scanner.hasNext()) {
+                System.out.println(scanner.nextLine());
+            }
+            process.waitFor();
+        }catch(IOException e1) {
+            e1.printStackTrace();
+        }
+
+        System.out.println("\n\n\nHIHI\n\n");
 //        System.out.println(messages.get(0).tick);
 //        System.out.println(messages.get(messages.size() - 1).tick);
 //        long start = System.nanoTime();
