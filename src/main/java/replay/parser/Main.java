@@ -194,7 +194,7 @@ public class Main {
             e1.printStackTrace();
         }
 
-        TimeUnit.SECONDS.sleep(5);
+        TimeUnit.SECONDS.sleep(300);
 
         simulate();
 
