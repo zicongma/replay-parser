@@ -52,63 +52,50 @@ public class Main {
         String[] values;
         String topic;
 
-        if (!(isHero(e)||isResource(e))) {
+        if (!(isHero(e))) {
             return;
         }
 
+        properties = new String[] {"m_iCurrentLevel", "m_iCurrentXP", "m_iHealth", "m_lifeState"
+                ,"CBodyComponent.m_cellX", "CBodyComponent.m_cellY", "CBodyComponent.m_vecX", "CBodyComponent.m_vecY",
+                "m_iTeamNum", "m_iDamageMin", "m_iDamageMax", "m_flStrength", "m_flAgility", "m_flIntellect", "m_iPlayerID"};
+        topic = "hero";
+        int numProperties = properties.length;
+
+        values = new String[numProperties];
+        for (int i = 0; i < numProperties; i++) {
+            values[i] = e.getProperty(properties[i]).toString();
+        }
+
+        int tick = ctx.getTick();
+
+        String name = e.getDtClass().getDtName();
+
+
+
         for (int game = 0; game < totalGame; game++) {
-            if ((isHero(e))) {
-                properties = new String[] {"m_iCurrentLevel", "m_iCurrentXP", "m_iHealth", "m_lifeState"
-                        ,"CBodyComponent.m_cellX", "CBodyComponent.m_cellY", "CBodyComponent.m_vecX", "CBodyComponent.m_vecY",
-                        "m_iTeamNum", "m_iDamageMin", "m_iDamageMax", "m_flStrength", "m_flAgility", "m_flIntellect", "m_iPlayerID"};
-                topic = "hero";
-                int numProperties = properties.length;
-                values = new String[numProperties];
-                for (int i = 0; i < numProperties; i++) {
-                    values[i] = e.getProperty(properties[i]).toString();
-                }
-                EntityInitialize initialize = new EntityInitialize(game, e.getDtClass().getDtName(), topic, properties, values, ctx.getTick());
-                messages.add(initialize);
-            } else if (isResource(e)) {
-//            topic = "resource";
-//            for (int i = 0; i < 10; i++) {
-//                properties = new String[] {"m_vecPlayerTeamData.000" + i + ".m_iKills",
-//                        "m_vecPlayerTeamData.000" + i + ".m_iAssists" , "m_vecPlayerTeamData.000" + i + ".m_iDeaths"};
-//                int numProperties = properties.length;
-//                values = new String[numProperties];
-//                for (int j = 0; j < numProperties; j++) {
-//                    values[j] = e.getProperty(properties[j]).toString();
-//                }
-//                EntityInitialize initialize = new EntityInitialize(game, e.getDtClass().getDtName() + i, topic, properties, values, ctx.getTick());
-//                messages.add(initialize);
-//            }
-            }
+            EntityInitialize initialize = new EntityInitialize(game, name, topic, properties, values, tick);
+            messages.add(initialize);
         }
     }
 
 
     @OnEntityUpdated
     public void onUpdated(Context ctx, Entity e, FieldPath[] updatedPaths, int updateCount) {
-        if (!(isHero(e) || isResource(e))) {
+        if (!(isHero(e))) {
             return;
         }
-        Entities entities = ctx.getProcessor(Entities.class);
 
-        for (int game = 0; game < totalGame; game++) {
-            for (int i = 0; i < updateCount; i++) {
-                if (isHero(e)) {
-                    EntityUpdate update = new EntityUpdate(game, e.getDtClass().getDtName(),"hero", e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
-                    messages.add(update);
-                } else if (isResource(e)) {
-//                String[] split = e.getDtClass().getNameForFieldPath(updatedPaths[i]).split("\\.");
-//                if (split.length >= 3) {
-//                    EntityUpdate update = new EntityUpdate(game, e.getDtClass().getDtName() + split[1].charAt(3), "resource", e.getDtClass().getNameForFieldPath(updatedPaths[i]), e.getPropertyForFieldPath(updatedPaths[i]).toString(), ctx.getTick());
-//                    messages.add(update);
-//                }
-                }
+        for (int i = 0; i < updateCount; i++) {
+            String name = e.getDtClass().getDtName();
+            String property = e.getDtClass().getNameForFieldPath(updatedPaths[i]);
+            String value = e.getPropertyForFieldPath(updatedPaths[i]).toString();
+            int tick = ctx.getTick();
+            for (int game = 0; game < totalGame; game++) {
+                EntityUpdate update = new EntityUpdate(game, name,"hero", property, value, tick);
+                messages.add(update);
             }
         }
-
     }
 
 //    @OnCombatLogEntry
