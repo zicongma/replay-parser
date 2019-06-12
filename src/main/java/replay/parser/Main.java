@@ -179,8 +179,8 @@ public class Main {
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
         long finish = System.nanoTime();
         System.out.println("took : " + (finish - start) );
-//        statsCollection();
-        System.out.println("starting");
+        Runtime rt = Runtime.getRuntime();
+        Process pr = rt.exec("mvn exec:java -f ../sparkscala/pom.xml &");
 //        System.out.println(messages.get(0).tick);
 //        System.out.println(messages.get(messages.size() - 1).tick);
 //        long start = System.nanoTime();
