@@ -19,6 +19,7 @@ import skadistats.clarity.source.MappedFileSource;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @UsesEntities
 public class Main {
@@ -193,11 +194,14 @@ public class Main {
             e1.printStackTrace();
         }
 
-        System.out.println("\n\n\nHIHI\n\n");
+        TimeUnit.SECONDS.sleep(5);
+
 //        System.out.println(messages.get(0).tick);
 //        System.out.println(messages.get(messages.size() - 1).tick);
 //        long start = System.nanoTime();
-//        simulate();
+        simulate();
+
+        System.out.println("\nProgram Finished\n");
 //        long finish = System.nanoTime();
 //        System.out.println(finish - start);
 //        sentStatsCollection();
