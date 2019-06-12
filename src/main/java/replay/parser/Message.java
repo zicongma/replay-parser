@@ -5,6 +5,7 @@ public abstract class Message {
     public String type;
     public String topic;
     public int tick;
+    public String message;
 
     public Message(int game, String type, String topic, int tick) {
         this.game = game;

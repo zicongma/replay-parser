@@ -10,6 +10,7 @@ public class EntityInitialize extends Message {
         this.entity = entity;
         this.properties = properties;
         this.values = values;
+        this.message = toMessageFormat();
     }
 
     @Override

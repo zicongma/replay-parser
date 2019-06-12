@@ -10,6 +10,7 @@ public class EntityUpdate extends Message {
         this.entity = entity;
         this.property = property;
         this.value = value;
+        this.message = toMessageFormat();
     }
 
     @Override

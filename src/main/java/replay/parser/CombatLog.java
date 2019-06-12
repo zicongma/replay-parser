@@ -12,6 +12,7 @@ public class CombatLog extends Message {
         this.attacker = attacker;
         this.target = target;
         this.value = value;
+        this.message = toMessageFormat();
     }
 
     @Override
