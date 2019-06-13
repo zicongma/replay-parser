@@ -76,7 +76,7 @@ public class Main {
 
 
         for (int game = 0; game < totalGame; game++) {
-            EntityInitialize initialize = new EntityInitialize(game, name, topic, properties, values,0);
+            EntityInitialize initialize = new EntityInitialize(game, name, topic, properties, values,tick);
             messages.add(initialize);
         }
     }
@@ -94,7 +94,7 @@ public class Main {
             String value = e.getPropertyForFieldPath(updatedPaths[i]).toString();
             int tick = ctx.getTick();
             for (int game = 0; game < totalGame; game++) {
-                EntityUpdate update = new EntityUpdate(game, name,"hero", property, value, 0);
+                EntityUpdate update = new EntityUpdate(game, name,"hero", property, value, tick);
                 messages.add(update);
             }
         }
@@ -169,8 +169,6 @@ public class Main {
                 Message message  = messages.get(updateidx);
 //                String str = message.message;
                 producer.send(message.topic, message.message);
-                System.out.println(message.message);
-                long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
@@ -208,44 +206,28 @@ public class Main {
 
     public void run(String[] args) throws Exception {
         this.totalGame = Integer.parseInt(args[1]);
-//        long start = System.nanoTime();
-
         long start = System.nanoTime();
-
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
-
         long finish = System.nanoTime();
+        System.out.println("took : " + (finish - start) );
+        Runtime rut = Runtime.getRuntime();
+        try {
+            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./run_engine.sh &"});
+            // prints out any message that are usually displayed in the console
+            Scanner scanner = new Scanner(process.getInputStream());
+            while (scanner.hasNext()) {
+                System.out.println(scanner.nextLine());
+            }
+            process.waitFor();
+        }catch(IOException e1) {
+            e1.printStackTrace();
+        }
 
-        System.out.println("Parsing took "+ (finish - start) + " nanoseconds");
-//        long finish = System.nanoTime();
-//        System.out.println("took : " + (finish - start) );
-//        Runtime rut = Runtime.getRuntime();
-//        try {
-//            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./run_engine.sh &"});
-//            // prints out any message that are usually displayed in the console
-//            Scanner scanner = new Scanner(process.getInputStream());
-//            while (scanner.hasNext()) {
-//                System.out.println(scanner.nextLine());
-//            }
-//            process.waitFor();
-//        }catch(IOException e1) {
-//            e1.printStackTrace();
-//        }
-//
-//        TimeUnit.SECONDS.sleep(30);
+        TimeUnit.SECONDS.sleep(30);
 
-//        long start = System.nanoTime();
-//
         simulate();
-//
-//        long finish = System.nanoTime();
-//
-//        System.out.println(messages.size() + " messages in "  + (finish - start) + " nanoseconds");
 
         System.out.println("\nProgram Finished\n");
-//        long finish = System.nanoTime();
-//        System.out.println(finish - start);
-//        sentStatsCollection();
     }
 
     public static void main(String[] args) throws Exception {
