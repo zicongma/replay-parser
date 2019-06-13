@@ -102,25 +102,55 @@ public class Main {
 
     @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry cle) {
-        for (int game = 0; game < totalGame; game++) {
-            CombatLog combatLog = null;
-            switch (cle.getType()) {
-                case DOTA_COMBATLOG_DAMAGE:
-                    combatLog = new CombatLog(game, "damage",  cle.getAttackerName(), cle.getTargetName(), cle.getValue(), ctx.getTick());
-                    break;
-                case DOTA_COMBATLOG_HEAL:
-                    combatLog = new CombatLog(game, "heal", cle.getAttackerName(), cle.getTargetName(), cle.getValue(), ctx.getTick());
-                    break;
-                case DOTA_COMBATLOG_DEATH:
-                    combatLog = new CombatLog(game, "kill", cle.getAttackerName(), cle.getTargetName(), -1, ctx.getTick());
-                case DOTA_COMBATLOG_GOLD:
-                    combatLog = new CombatLog(game, "gold",  "", cle.getTargetName(), cle.getValue(), ctx.getTick());
-                    break;
-                case DOTA_COMBATLOG_XP:
-                    combatLog = new CombatLog(game, "xp",  "", cle.getTargetName(), cle.getValue(), ctx.getTick());
-                    break;
-            }
-            if (combatLog != null) {
+        boolean isType = true;
+        String combatType = null;
+        String attacker = null;
+        String target = null;
+        int value = -1;
+        int tick = -1;
+        switch (cle.getType()) {
+            case DOTA_COMBATLOG_DAMAGE:
+                combatType = "damage";
+                attacker = cle.getAttackerName();
+                target = cle.getTargetName();
+                value = cle.getValue();
+                tick = ctx.getTick();
+                break;
+            case DOTA_COMBATLOG_HEAL:
+                combatType = "heal";
+                attacker = cle.getAttackerName();
+                target = cle.getTargetName();
+                value = cle.getValue();
+                tick = ctx.getTick();
+                break;
+            case DOTA_COMBATLOG_DEATH:
+                combatType = "kill";
+                attacker = cle.getAttackerName();
+                target = cle.getTargetName();
+                value = -1;
+                tick = ctx.getTick();
+            case DOTA_COMBATLOG_GOLD:
+                combatType = "gold";
+                attacker = "";
+                target = cle.getTargetName();
+                value = cle.getValue();
+                tick = ctx.getTick();
+                break;
+            case DOTA_COMBATLOG_XP:
+                combatType = "xp";
+                attacker = "";
+                target = cle.getTargetName();
+                value = cle.getValue();
+                tick = ctx.getTick();
+                break;
+            default:
+                isType = false;
+
+        }
+
+        if (isType) {
+            for (int game = 0; game < totalGame; game++) {
+                CombatLog combatLog = new CombatLog(game, combatType, attacker, target, value, tick);
                 messages.add(combatLog);
             }
         }
