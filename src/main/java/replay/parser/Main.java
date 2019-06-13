@@ -178,7 +178,14 @@ public class Main {
     public void run(String[] args) throws Exception {
         this.totalGame = Integer.parseInt(args[1]);
 //        long start = System.nanoTime();
+
+        long start = System.nanoTime();
+
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
+
+        long finish = System.nanoTime();
+
+        System.out.println("Parsing took "+ (finish - start) + " nanoseconds");
 //        long finish = System.nanoTime();
 //        System.out.println("took : " + (finish - start) );
 //        Runtime rut = Runtime.getRuntime();
@@ -196,13 +203,13 @@ public class Main {
 //
 //        TimeUnit.SECONDS.sleep(30);
 
-        long start = System.nanoTime();
-
-        simulate();
-
-        long finish = System.nanoTime();
-
-        System.out.println(messages.size() + " messages in "  + (finish - start) + " nanoseconds");
+//        long start = System.nanoTime();
+//
+//        simulate();
+//
+//        long finish = System.nanoTime();
+//
+//        System.out.println(messages.size() + " messages in "  + (finish - start) + " nanoseconds");
 
         System.out.println("\nProgram Finished\n");
 //        long finish = System.nanoTime();
