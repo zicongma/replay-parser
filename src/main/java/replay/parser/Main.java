@@ -100,7 +100,7 @@ public class Main {
         }
     }
 
-//    @OnCombatLogEntry
+    @OnCombatLogEntry
     public void onCombatLogEntry(Context ctx, CombatLogEntry cle) {
         for (int game = 0; game < totalGame; game++) {
             CombatLog combatLog = null;
@@ -137,8 +137,8 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-                String str = message.message;
-//                producer.send(message.topic, message.message);
+//                String str = message.message;
+                producer.send(message.topic, message.message);
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 updateidx ++;
                 if (updateidx == finalidx) {
@@ -205,7 +205,7 @@ public class Main {
 
 //        long start = System.nanoTime();
 //
-//        simulate();
+        simulate();
 //
 //        long finish = System.nanoTime();
 //
