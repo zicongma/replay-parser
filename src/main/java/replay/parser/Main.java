@@ -139,6 +139,7 @@ public class Main {
                 Message message  = messages.get(updateidx);
 //                String str = message.message;
                 producer.send(message.topic, message.message);
+                System.out.println(message.message);
                 long sentTick = (System.nanoTime() - start) * 30 / 1000000000;
                 updateidx ++;
                 if (updateidx == finalidx) {
