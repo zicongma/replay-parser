@@ -202,7 +202,7 @@ public class Main {
 
         long finish = System.nanoTime();
 
-        System.out.println(finish - start);
+        System.out.println(messages.size() + " messages in "  + (finish - start) + " nanoseconds");
 
         System.out.println("\nProgram Finished\n");
 //        long finish = System.nanoTime();
