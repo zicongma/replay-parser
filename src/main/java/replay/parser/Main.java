@@ -77,7 +77,7 @@ public class Main {
 
 
         for (int game = 0; game < totalGame; game++) {
-            EntityInitialize initialize = new EntityInitialize(game, name, topic, properties, values,0);
+            EntityInitialize initialize = new EntityInitialize(game, name, topic, properties, values,tick);
             messages.add(initialize);
         }
     }
@@ -95,7 +95,7 @@ public class Main {
             String value = e.getPropertyForFieldPath(updatedPaths[i]).toString();
             int tick = ctx.getTick();
             for (int game = 0; game < totalGame; game++) {
-                EntityUpdate update = new EntityUpdate(game, name,"hero", property, value, 0);
+                EntityUpdate update = new EntityUpdate(game, name,"hero", property, value, tick);
                 messages.add(update);
             }
         }
@@ -151,7 +151,7 @@ public class Main {
 
         if (isType) {
             for (int game = 0; game < totalGame; game++) {
-                CombatLog combatLog = new CombatLog(game, combatType, attacker, target, value, 0);
+                CombatLog combatLog = new CombatLog(game, combatType, attacker, target, value, tick);
                 messages.add(combatLog);
             }
         }
@@ -168,9 +168,7 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-//                String str = message.message;
                 producer.send(message.topic, message.message);
-//                noop(str);
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
@@ -214,31 +212,22 @@ public class Main {
         this.totalGame = Integer.parseInt(args[1]);
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
 
+        Runtime rut = Runtime.getRuntime();
+        try {
+            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./run_engine.sh &"});
+            // prints out any message that are usually displayed in the console
+            Scanner scanner = new Scanner(process.getInputStream());
+            while (scanner.hasNext()) {
+                System.out.println(scanner.nextLine());
+            }
+            process.waitFor();
+        }catch(IOException e1) {
+            e1.printStackTrace();
+        }
 
-//        System.out.println("took : " + (finish - start) );
-//        Runtime rut = Runtime.getRuntime();
-//        try {
-//            Process process = rut.exec(new String[]{"/bin/sh", "-c", "./run_engine.sh &"});
-//            // prints out any message that are usually displayed in the console
-//            Scanner scanner = new Scanner(process.getInputStream());
-//            while (scanner.hasNext()) {
-//                System.out.println(scanner.nextLine());
-//            }
-//            process.waitFor();
-//        }catch(IOException e1) {
-//            e1.printStackTrace();
-//        }
-//
-//        TimeUnit.SECONDS.sleep(30);
-
-
-        long testStart = System.nanoTime();
-
+        TimeUnit.SECONDS.sleep(30);
         simulate();
 
-        long testFinish = System.nanoTime();
-
-        System.out.println(messages.size() + " records processed in " + (testFinish - testStart) + " nanoseconds");
 
         System.out.println("\nProgram Finished\n");
     }
