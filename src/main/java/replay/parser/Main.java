@@ -1,5 +1,6 @@
 package replay.parser;
 
+import jdk.nashorn.internal.ir.debug.ObjectSizeCalculator;
 import org.joda.time.Instant;
 import org.joda.time.format.PeriodFormatter;
 import org.joda.time.format.PeriodFormatterBuilder;
@@ -160,15 +161,18 @@ public class Main {
 
         MessageProducer producer = new MessageProducer();
         long start = System.nanoTime();
+        System.out.println(Instant.now());
         int updateidx = 0;
         int finalidx = messages.size();
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
+            long ticksPassed = timePassed * 30 / 1000000000;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
 //                String str = message.message;
                 producer.send(message.topic, message.message);
+                long sent =   (System.nanoTime() - start) * 30 / 1000000000;
+                sentTicks.add(sent);
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
@@ -209,6 +213,9 @@ public class Main {
         long start = System.nanoTime();
         new SimpleRunner(new MappedFileSource(args[0])).runWith(this);
         long finish = System.nanoTime();
+        System.out.println(messages.size());
+
+
         System.out.println("took : " + (finish - start) );
         Runtime rut = Runtime.getRuntime();
         try {
@@ -228,6 +235,7 @@ public class Main {
         simulate();
 
         System.out.println("\nProgram Finished\n");
+        sentStatsCollection();
     }
 
     public static void main(String[] args) throws Exception {
