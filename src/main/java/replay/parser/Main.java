@@ -168,9 +168,9 @@ public class Main {
             long ticksPassed = timePassed * 30 / 1000000000;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
-//                String str = message.message;
+                String str = message.message;
 //                producer.send(message.topic, message.message);
-                noop(message.message);
+                noop(str);
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
