@@ -161,7 +161,6 @@ public class Main {
 
         MessageProducer producer = new MessageProducer();
         long start = System.nanoTime();
-        System.out.println(Instant.now());
         int updateidx = 0;
         int finalidx = messages.size();
         while (true) {
@@ -171,14 +170,16 @@ public class Main {
                 Message message  = messages.get(updateidx);
 //                String str = message.message;
                 producer.send(message.topic, message.message);
-                long sent =   (System.nanoTime() - start) * 30 / 1000000000;
-                sentTicks.add(sent);
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
                 }
             }
         }
+    }
+
+    public void noop(String message) {
+
     }
 
     public void statsCollection() {
@@ -239,7 +240,6 @@ public class Main {
         System.out.println(messages.size() + " records processed in " + (testFinish - testStart) + " nanoseconds");
 
         System.out.println("\nProgram Finished\n");
-        sentStatsCollection();
     }
 
     public static void main(String[] args) throws Exception {
