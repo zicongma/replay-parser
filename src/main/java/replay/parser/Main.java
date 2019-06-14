@@ -169,7 +169,8 @@ public class Main {
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
 //                String str = message.message;
-                producer.send(message.topic, message.message);
+//                producer.send(message.topic, message.message);
+                noop(message.message);
                 updateidx ++;
                 if (updateidx == finalidx) {
                     return;
