@@ -165,7 +165,7 @@ public class Main {
         int finalidx = messages.size();
         while (true) {
             long timePassed = System.nanoTime() - start;
-            long ticksPassed = timePassed * 30 / 1000000000;
+            long ticksPassed = timePassed * 30 / 1000000000 + messages.get(0).tick;
             while (ticksPassed >= messages.get(updateidx).tick) {
                 Message message  = messages.get(updateidx);
                 producer.send(message.topic, message.message);
